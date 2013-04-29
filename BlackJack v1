@@ -1,0 +1,134 @@
+//Suits Array
+var suits = ["Clubs","Diamonds","Hearts","Spades"];
+
+// Card Constructor
+function Card(suit,rank) {
+    var cardSuit = suit;
+    var cardRank = rank;
+    
+    this.getSuit = function() {
+        return cardSuit;
+    };
+    
+    this.getNumber = function() {
+        if(cardRank === 11) {
+            return "Jack";
+        } else if(cardRank === 12) {
+            return "Queen";
+        } else if(cardRank === 13) {
+            return "King";
+        } else if(cardRank === 1) {
+            return "Ace";
+        } else {
+            return cardRank;
+        }
+    };
+  
+    this.getValue = function() {
+        if(rank===1) {
+            return 11;
+        } else if(rank>=10) {
+            return 10;
+        } else {
+            return rank;
+        }
+    };
+}
+//This is the deal function
+function deal() {
+    suit = Math.floor(Math.random() * 4 + 1);
+    rank = Math.floor(Math.random() * 13 + 1);
+    return new Card(suit,rank);
+}
+
+function Hand() {
+    var cardArray=[deal(), deal()];
+        
+    this.getHand = function() {
+        return cardArray;
+    };
+    
+    this.score = function() {
+        var sum = 0;
+        var ace = 0;
+        for (var i = 0 ; i<cardArray.length ; i++) {
+            sum += cardArray[i].getValue();
+            if(cardArray[i].getValue() >= 11) {
+                ace++;
+            }
+        }
+        while(sum > 21 && ace > 0) {
+            sum -= 10;
+            ace--;
+        }
+        return sum;
+    };
+
+    this.printHand = function() {
+        var string = "";
+        for (var i = 0 ; i<cardArray.length ; i++) {
+              var index = cardArray[i].getSuit();
+              string += cardArray[i].getNumber() + " of " + suits[index-1]+" / ";
+        }
+        return string;
+    };
+    
+    this.hitMe = function() {
+        cardArray.push(deal());
+    };
+}
+
+//This is where the Dealer Plays
+function playAsDealer() {
+    dealerHand = new Hand();
+    while(dealerHand.score() < 17) {
+        dealerHand.hitMe();
+    }
+    return dealerHand;
+}
+
+//This is where the User Plays
+function playAsUser() {
+    userHand = new Hand();
+    var decision = confirm("Your hand is: "+userHand.printHand()+"\nYour score is: "+userHand.score()+"\n\nPress OK to hit (take another card) or Cancel to stand");
+    while(decision === true) {
+        userHand.hitMe();
+        decision = confirm("Your hand is: "+userHand.printHand()+"\nYour score is: "+userHand.score()+"\n\nPress OK to hit (take another card) or Cancel to stand");
+    }
+    return userHand;
+}
+
+//Here we declare a Winner of the Game
+function declareWinner(userHand,dealerHand) {
+    var userScore = userHand.score();
+    var dealerScore = dealerHand.score();
+    
+    if(userScore > 21) {
+        if(dealerScore > 21) {return "You tied!";}
+        else {return "You lose!";} 
+    } 
+    else {
+        if(dealerScore > 21) {return "You win!";}
+        else {
+            if(userScore > dealerScore) {return "You win!";}
+            else {
+                if(userScore === dealerScore) {return "You tied!";}
+                else {return "You lose!";}
+            }
+        }
+    }
+}
+
+function playGame() {
+    playAsUser();
+    playAsDealer();
+    declareWinner(userHand,dealerHand);
+    console.log("The Dealer's Hand is: "+dealerHand.printHand());
+    console.log("Your Hand is: "+userHand.printHand()+"\n");
+    console.log("Your score is "+userHand.score()+", and Dealer's score is "+dealerHand.score());
+    console.log(declareWinner(userHand,dealerHand));
+}
+
+playGame();
+
+
